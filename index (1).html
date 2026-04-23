@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Athena Dados — Protótipos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0d14;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Background ambient */
+  .bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-glow-1 {
+    width: 600px; height: 600px;
+    background: rgba(37,99,235,0.12);
+    top: -150px; left: -150px;
+  }
+  .bg-glow-2 {
+    width: 500px; height: 500px;
+    background: rgba(8,145,178,0.08);
+    bottom: -100px; right: -100px;
+  }
+
+  /* Grid lines */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    padding: 40px 24px;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    background: rgba(37,99,235,0.1);
+    border: 1px solid rgba(37,99,235,0.25);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #60a5fa;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #60a5fa;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h1 span {
+    background: linear-gradient(90deg, #3b82f6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #64748b;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* Cards grid */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    animation: fadeUp 0.6s ease 0.15s both;
+  }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: #111520;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 28px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .card-dark::before {
+    background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(8,145,178,0.03));
+  }
+
+  .card-light::before {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(37,99,235,0.02));
+  }
+
+  .card:hover {
+    border-color: rgba(99,179,237,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 48px rgba(0,0,0,0.4);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  /* Preview mockup */
+  .preview {
+    border-radius: 10px;
+    overflow: hidden;
+    height: 160px;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .preview-dark {
+    background: #0a0d14;
+  }
+
+  .preview-light {
+    background: #f0f2f7;
+  }
+
+  /* Mini UI mockup inside preview */
+  .mini-ui {
+    display: flex;
+    height: 100%;
+    gap: 0;
+  }
+
+  .mini-sidebar {
+    width: 52px;
+    height: 100%;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .preview-light .mini-sidebar {
+    background: #fff;
+    border-right-color: rgba(0,0,0,0.08);
+  }
+
+  .preview-dark .mini-sidebar {
+    background: #111520;
+  }
+
+  .mini-logo {
+    width: 28px; height: 8px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+
+  .preview-dark .mini-logo { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+  .preview-light .mini-logo { background: linear-gradient(90deg, #2563eb, #0891b2); }
+
+  .mini-nav-item {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .preview-light .mini-nav-item { background: rgba(0,0,0,0.07); }
+
+  .mini-nav-item.active-dark { background: rgba(59,130,246,0.35); }
+  .mini-nav-item.active-light { background: rgba(37,99,235,0.2); }
+
+  .mini-content {
+    flex: 1;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .mini-header {
+    height: 12px;
+    border-radius: 3px;
+    width: 60%;
+  }
+
+  .preview-dark .mini-header { background: rgba(255,255,255,0.12); }
+  .preview-light .mini-header { background: rgba(0,0,0,0.12); }
+
+  .mini-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .mini-stat {
+    height: 26px;
+    border-radius: 5px;
+  }
+
+  .preview-dark .mini-stat { background: #161b2a; border: 1px solid rgba(255,255,255,0.05); }
+  .preview-light .mini-stat { background: #fff; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+  .mini-search {
+    height: 48px;
+    border-radius: 6px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .preview-dark .mini-search { background: #161b2a; border: 1px solid rgba(255,255,255,0.05); }
+  .preview-light .mini-search { background: #fff; border: 1px solid rgba(0,0,0,0.07); }
+
+  .mini-input-row { display: flex; gap: 3px; }
+
+  .mini-input {
+    flex: 1;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .preview-dark .mini-input { background: rgba(255,255,255,0.05); }
+  .preview-light .mini-input { background: rgba(0,0,0,0.06); }
+
+  .mini-btn {
+    width: 22px; height: 10px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    flex-shrink: 0;
+  }
+
+  .mini-map {
+    flex: 1;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .preview-dark .mini-map { background: #0f1623; }
+  .preview-light .mini-map { background: #e8f0fe; }
+
+  .mini-pin {
+    position: absolute;
+    width: 5px; height: 5px;
+    background: #3b82f6;
+    border-radius: 50%;
+    border: 1px solid #fff;
+  }
+
+  /* Card content */
+  .card-body { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
+
+  .card-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .card-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-dark {
+    background: rgba(59,130,246,0.12);
+    color: #60a5fa;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+
+  .tag-light {
+    background: rgba(255,255,255,0.06);
+    color: #94a3b8;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .card-desc {
+    font-size: 13.5px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  .card-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .feat {
+    font-size: 11.5px;
+    color: #475569;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .card-cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .card-dark .card-cta { color: #60a5fa; }
+  .card-light .card-cta { color: #94a3b8; }
+
+  .card:hover .cta-arrow {
+    transform: translateX(4px);
+  }
+
+  .cta-arrow {
+    transition: transform 0.2s;
+    font-size: 16px;
+  }
+
+  /* Footer */
+  .footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .footer-text {
+    font-size: 12.5px;
+    color: #334155;
+    text-align: center;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .footer-link {
+    font-size: 12px;
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-link:hover { color: #60a5fa; }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-grid"></div>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      Protótipo UI/UX
+    </div>
+    <h1>Athena <span>Dados</span></h1>
+    <p class="subtitle">Selecione o tema do protótipo que deseja visualizar. Ambos contam com as mesmas funcionalidades e layout.</p>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards">
+
+    <!-- Dark -->
+    <a class="card card-dark" href="athena-prototype.html">
+      <div class="preview preview-dark">
+        <div class="mini-ui">
+          <div class="mini-sidebar">
+            <div class="mini-logo"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item active-dark"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+          </div>
+          <div class="mini-content">
+            <div class="mini-header"></div>
+            <div class="mini-stats">
+              <div class="mini-stat"></div>
+              <div class="mini-stat"></div>
+              <div class="mini-stat"></div>
+              <div class="mini-stat"></div>
+            </div>
+            <div class="mini-search">
+              <div class="mini-input-row">
+                <div class="mini-input"></div>
+                <div class="mini-input" style="max-width:30px"></div>
+                <div class="mini-btn"></div>
+              </div>
+              <div class="mini-input-row">
+                <div class="mini-input" style="max-width:28px"></div>
+                <div class="mini-input"></div>
+                <div class="mini-input"></div>
+              </div>
+            </div>
+            <div class="mini-map">
+              <div class="mini-pin" style="left:45%;top:55%"></div>
+              <div class="mini-pin" style="left:55%;top:45%;background:#06b6d4"></div>
+              <div class="mini-pin" style="left:60%;top:38%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-label">
+          <div class="card-title">Tema Escuro</div>
+          <span class="card-tag tag-dark">Dark Mode</span>
+        </div>
+        <div class="card-desc">Interface com fundo escuro, paleta azul/ciano e efeitos de glow. Ideal para uso noturno e ambientes com pouca luz.</div>
+        <div class="card-features">
+          <span class="feat">Fundo #0a0d14</span>
+          <span class="feat">Glow effects</span>
+          <span class="feat">Contraste alto</span>
+        </div>
+        <div class="card-cta">
+          Abrir protótipo <span class="cta-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Light -->
+    <a class="card card-light" href="athena-prototype-light.html">
+      <div class="preview preview-light">
+        <div class="mini-ui">
+          <div class="mini-sidebar">
+            <div class="mini-logo"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item active-light"></div>
+            <div class="mini-nav-item"></div>
+            <div class="mini-nav-item"></div>
+          </div>
+          <div class="mini-content">
+            <div class="mini-header"></div>
+            <div class="mini-stats">
+              <div class="mini-stat"></div>
+              <div class="mini-stat"></div>
+              <div class="mini-stat"></div>
+              <div class="mini-stat"></div>
+            </div>
+            <div class="mini-search">
+              <div class="mini-input-row">
+                <div class="mini-input"></div>
+                <div class="mini-input" style="max-width:30px"></div>
+                <div class="mini-btn"></div>
+              </div>
+              <div class="mini-input-row">
+                <div class="mini-input" style="max-width:28px"></div>
+                <div class="mini-input"></div>
+                <div class="mini-input"></div>
+              </div>
+            </div>
+            <div class="mini-map">
+              <div class="mini-pin" style="left:45%;top:55%"></div>
+              <div class="mini-pin" style="left:55%;top:45%;background:#0891b2"></div>
+              <div class="mini-pin" style="left:60%;top:38%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-label">
+          <div class="card-title">Tema Claro</div>
+          <span class="card-tag tag-light">Light Mode</span>
+        </div>
+        <div class="card-desc">Interface com fundo branco e cinza suave, sombras leves e cores nítidas. Ideal para uso diurno em ambientes externos.</div>
+        <div class="card-features">
+          <span class="feat">Fundo #f0f2f7</span>
+          <span class="feat">Sombras sutis</span>
+          <span class="feat">Alta legibilidade</span>
+        </div>
+        <div class="card-cta" style="color:#94a3b8">
+          Abrir protótipo <span class="cta-arrow">→</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-text">Protótipo desenvolvido para Athena Dados · Dexter Engenharia</div>
+    <div class="footer-links">
+      <a class="footer-link" href="https://athenadados.com.br" target="_blank">athenadados.com.br</a>
+      <a class="footer-link" href="https://www.dexterengenharia.com.br" target="_blank">dexterengenharia.com.br</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
